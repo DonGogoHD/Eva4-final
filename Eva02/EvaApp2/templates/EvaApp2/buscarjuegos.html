@@ -1,0 +1,230 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoRetroPixel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url("{% static 'imagenes/fondodos.jpg' %}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav {
+            background-color: #f2f2f2;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #333;
+            padding: 0 15px;
+            font-weight: bold;
+        }
+
+        h2 {
+            font-family: f;
+            font-style: oblique;
+            font-size: 300%;
+            background: linear-gradient(to right,
+                    #3cff00 20%,
+                    #38b6ff 40%,
+                    #38b6ff 60%,
+                    #3cff00 80%);
+            background-size: 200%;
+            color: transparent;
+            background-clip: text;
+            animation: shine s linear infinite;
+            -webkit-text-stroke: 2px rgb(0, 0, 0);
+            text-align: center;
+            margin: 0 auto;
+        }
+
+        .imagen {
+            width: 100%;
+            max-width: 1200px;
+            height: auto;
+            margin: 0 auto;
+            display: block;
+        }
+
+        .alert {
+            background-color: #e0f7ff;
+            color: #333;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid #b3d9ff;
+            margin: 15px auto;
+            width: 80%;
+        }
+
+        .tabla-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            margin-top: 20px;
+        }
+
+        .tabla {
+            width: 100%;
+            max-width: 800px;
+            border: 1px solid #333;
+            border-collapse: collapse;
+            background-color: rgba(1, 204, 255, 0.437);
+        }
+
+        .tabla th,
+        .tabla td {
+            border: 1px solid #333;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .tabla th {
+            background-color: #f9f9f9;
+            font-weight: bold;
+        }
+
+        .tabla img {
+            max-width: 100px;
+            height: auto;
+        }
+
+        button {
+            background-color: transparent;
+            border: none;
+            color: #333;
+            font-size: 1em;
+            cursor: pointer;
+        }
+
+        footer {
+            color: #fff;
+            text-align: center;
+            padding: 20px 0;
+            position: static;
+            width: 100%;
+        }
+
+        .formulario-busqueda {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin: 20px auto;
+            width: 80%;
+            /* Puedes ajustar el ancho según lo necesites */
+        }
+
+        .formulario-busqueda input,
+        .formulario-busqueda select,
+        .formulario-busqueda button {
+            padding: 10px;
+            font-size: 1rem;
+        }
+
+        .formulario-busqueda button {
+            cursor: pointer;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .formulario-busqueda button:hover {
+            background-color: #555;
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <a href="{% url 'index' %}">GoRetroPixel</a>
+        {% if user.is_authenticated %}
+        <a href="{% url 'ver_carrito' %}">Ver Carrito</a>
+        <form action="{% url 'logout' %}" method="post" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit">Cerrar Sesión</button>
+        </form>
+        {% if user.is_staff %}
+        <a href="{% url 'juegos' %}">Lista de juegos</a>
+        <a href="{% url 'agregar_juego' %}">Agregar juegos</a>
+        <a href="/api/">API admin</a>
+        {% endif %}
+        {% else %}
+        <a href="{% url 'login' %}">Iniciar Sesión</a>
+        {% endif %}
+    </nav>
+
+    <header>
+        <div class="relative">
+            <img src="https://raw.githubusercontent.com/DonGogoHD/Imagenes/refs/heads/main/imagenes%20nube/Imagenes/goretropixel.png"
+                alt="personajes" class="imagen" />
+        </div>
+    </header>
+    <h2>JUEGOS DISPONIBLES</h2>
+
+    <form method="get" action="{% url 'buscarjuegos' %}" class="formulario-busqueda">
+        <input type="text" name="nombre" placeholder="Buscar por nombre" value="{{ request.GET.nombre }}">
+        <input type="text" name="consola" placeholder="Buscar por consola" value="{{ request.GET.consola }}">
+        <select name="ordenar_precio">
+            <option value="">Ordenar por precio</option>
+            <option value="asc" {% if request.GET.ordenar_precio == "asc" %}selected{% endif %}>Menor a Mayor</option>
+            <option value="desc" {% if request.GET.ordenar_precio == "desc" %}selected{% endif %}>Mayor a Menor</option>
+        </select>
+        <button type="submit">Buscar</button>
+    </form>
+
+    {% if mensaje %}
+    <div class="alert alert-success">
+        {{ mensaje }}
+    </div>
+    {% endif %}
+
+    <div class="tabla-container">
+        <table class="tabla">
+            <thead>
+                <tr>
+                    <th>Imagen</th>
+                    <th>Nombre</th>
+                    <th>Precio</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for juego in juegos %}
+                <tr>
+                    <td><img src="{{ juego.imagen.url }}" alt="{{ juego.nombre }}"></td>
+                    <td>{{ juego.nombre }}</td>
+                    <td>{{ juego.precio }}</td>
+                    <td> 
+          <!-- <form method="post" action="{% url 'agregar_al_carrito' juego.id %}">-->
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <button type="submit">Agregar al carrito</button>
+                    </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <footer>
+        <p>&copy; 2024 GoRetroPixel venta de juegos retro </p>
+    </footer>
+</body>
+
+</html>

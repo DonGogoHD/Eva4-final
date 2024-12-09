@@ -1,0 +1,217 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoRetroPixel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url("{% static 'imagenes/fondodos.jpg' %}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav {
+            background-color: #f2f2f2;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #333;
+            padding: 0 15px;
+            font-weight: bold;
+        }
+
+        h2 {
+            font-family: f;
+            font-style: oblique;
+            font-size: 300%;
+            background: linear-gradient(to right,
+                    #3cff00 20%,
+                    #38b6ff 40%,
+                    #38b6ff 60%,
+                    #3cff00 80%);
+            background-size: 200%;
+            color: transparent;
+            background-clip: text;
+            animation: shine s linear infinite;
+            -webkit-text-stroke: 2px rgb(0, 0, 0);
+            text-align: center;
+            margin: 0 auto;
+        }
+
+        .imagen {
+            width: 100%;
+            max-width: 1200px;
+            height: auto;
+            margin: 0 auto;
+            display: block;
+        }
+
+        .alert {
+            background-color: #e0f7ff;
+            color: #333;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid #b3d9ff;
+            margin: 15px auto;
+            width: 80%;
+        }
+
+        .card {
+            width: calc(33.33% - 20px); 
+            height: 254px;
+            border-radius: 20px;
+            padding: 5px;
+            box-shadow: rgb(151 90 177 / 93%) 0 15px 30px -5px;
+            background-image: linear-gradient(144deg, #8b3eb5, #0fa7ba 50%, #8b3eb5);
+            margin: 10px;
+            box-sizing: border-box;
+        }
+
+        .card__content {
+            background: rgb(253 215 215 / 69%);
+            border-radius: 17px;
+            width: 100%;
+            height: 100%;
+        }
+
+        .tabla-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+            max-width: 100%; 
+        }
+
+        .card-item {
+            margin-bottom: 8px;
+        }
+
+        .card img {
+            width: 100%;
+            border-radius: 10px;
+        }
+
+        .tabla {
+            width: 100%;
+            max-width: 800px;
+            border: 1px solid #333;
+            border-collapse: collapse;
+            background-color: rgba(1, 204, 255, 0.2);
+        }
+
+        .tabla th,
+        .tabla td {
+            border: 1px solid #333;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .tabla th {
+            background-color: #f9f9f9;
+            font-weight: bold;
+        }
+
+        .tabla img {
+            max-width: 100px;
+            height: auto;
+        }
+
+        button {
+            background-color: transparent;
+            border: none;
+            color: #333;
+            font-size: 1em;
+            cursor: pointer;
+        }
+
+        footer {
+            color: #fff;
+            text-align: center;
+            padding: 20px 0;
+            position: static;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <a href="{% url 'index' %}">GoRetroPixel</a>
+        {% if user.is_authenticated %}
+        <a href="{% url 'ver_carrito' %}">Ver Carrito</a>
+        <a href="{% url 'buscarjuegos' %}">Buscar Juego</a>
+        <form action="{% url 'logout' %}" method="post" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit">Cerrar Sesión</button>
+        </form>
+        {% if user.is_staff %}
+        <a href="{% url 'juegos' %}">Lista de juegos</a>
+        <a href="{% url 'agregar_juego' %}">Agregar juegos</a>
+        <a href="/api/">API admin</a>
+        {% endif %}
+        {% else %}
+        <a href="{% url 'login' %}">Iniciar Sesión</a>
+        {% endif %}
+    </nav>
+
+    <header>
+        <div class="relative">
+            <img src="https://raw.githubusercontent.com/DonGogoHD/Imagenes/refs/heads/main/imagenes%20nube/Imagenes/goretropixel.png"
+                alt="personajes" class="imagen" />
+        </div>
+    </header>
+    <h2>JUEGOS DISPONIBLES</h2>
+    <div class="tabla-container">
+        {% for juego in juegos %}
+        <div class="card">
+            <div class="card__content">
+                <div class="card-item">
+                    <img src="{% static 'imagenes/' %}{{ juego.imagen }}" alt="{{ juego.nombre }}">
+                </div>
+                <div class="card-item">
+                    <strong>Nombre:</strong> {{ juego.nombre }}
+                </div>
+                <div class="card-item">
+                    <strong>Consola:</strong> {{ juego.consola }}
+                </div>
+                <div class="card-item">
+                    <strong>Cantidad:</strong> {{ juego.cantidad }}
+                </div>
+                <div class="card-item">
+                    <strong>Precio:</strong> ${{ juego.precio }}
+                </div>
+                <div class="card-item">
+                    <strong>Estado:</strong> {{ juego.estado }}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <tr>
+            <td colspan="6">No hay juegos disponibles.</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+        </table>
+    </div>
+
+    <div class="alert">Somos una pequeña tienda online que vende juegos retro</div>
+
+    <footer>
+        <p>&copy; 2024 GoRetroPixel venta de juegos retro </p>
+    </footer>
+</body>
+
+</html>
